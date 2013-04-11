@@ -3,6 +3,12 @@ RaspiHome
 
 This is an experiment in making a "Home Information System" that I can pluggably extend to give me a remote dashboard from a Raspberry Pi plugged into my home network and exposed via HTTP.
 
+Status
+------
+
+Concept => no working code yet. Check back in 6 months!
+
+
 General Architecture Idea
 -------------------------
 
@@ -14,7 +20,9 @@ Goals
 -----
 
 - Runs easily on Raspi without taxing the little thing too much (still enough hp left over for file sharing, SSH jump server, etc).
-- 
+- Responsive design for both tablet, mobile and desktop
+- Leverage MozApps/WebApp emerging standards to minimize requests on raspberry pi (e.g. App Caching)
+- Pluggable Pythonic architecture for easy addition of new items
 
 Ideas for Plugins
 -----------------
