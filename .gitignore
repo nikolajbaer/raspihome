@@ -5,3 +5,4 @@ build/
 bin/
 .Python
 local/
+raspihome/public/bootstrap
