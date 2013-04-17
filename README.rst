@@ -34,5 +34,23 @@ Ideas for Plugins
 - Current weather
 - ZigBee / X10 and other stuff..
 
+Architectural Details
+---------------------
+
+- Start with a Building / Rooms / Spaces concept
+- Define Sensors / Actuators for each building/room/space
+- Assemble your domain objects from config file with connection to sensors / actuators
+- Cherrypy provides web api to building model
+  - request building overview
+  - request sensor status
+  - trigger or schedule action on actuator
+- Event subsystem provides ongoing sensor / actuator updates
+  - Sensors can be realtime (when queried), or have update intervals
+  - Actuators can be scheduled for changes, or be triggered in realtime
 
 
+Design Considerations 
+---------------------
+
+- Everything always ends up needing to be networked. Do I replicate the building model across all nodes and rely on the sensor/actuator message queues to be distributed, or do i aggregate each building tree into a larger "facility" model with inter-node communication happening via http based pubsub?
+- KISS for phase 1 
