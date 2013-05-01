@@ -1,0 +1,37 @@
+- id: home
+  name: Home 
+  features:
+     - home.features.web.WebVisibleZone
+  sensors:
+     - type: home.sensors.test.TestSensor
+       name: Sens1
+       config:
+          testval: 1
+     - type: home.sensors.test.TestSensor
+       name: Sens2
+       config:
+          testval: 2
+  actuators:
+     - type: home.sensors.test.TestActuator
+       name: Act1
+       config:
+          testval: a
+     - type: home.sensors.test.TestActuator
+       name: Act2
+       config:
+          testval: b
+- id: livingroom
+  path: home
+- id: master-bedroom
+  path: home
+- id: kids-bedroom
+  path: home
+- id: master-bath
+  path: home/master-bedroom 
+- id: office
+  path: home    
+- id: garage
+  path: home
+        
+
+                
