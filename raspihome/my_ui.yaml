@@ -1,0 +1,8 @@
+- slug: test
+  name: Test Panel
+  type: ui.sensors.TestSensorPanel
+  config:
+    test_attribute: Hello
+    test_another: World
+  template: some_template.html  
+

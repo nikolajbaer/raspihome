@@ -1,25 +1,45 @@
 import yaml,sys
 from home.base import Zone
 import cherrypy
+from cherrypy.lib.static import serve_file
 import json
+import importlib
 
 class Server(object):
-    def __init__(self,web_port=8000):
-        self.web_port = web_port
-        self.facility = None
+    exposed = True
 
-    def add_zone(self,name,zone):
-        # CONSIDER is this too dangerous?
-        pass
+    def __init__(self,base_template="public/index.html"):
+        self.facility = None
+        self.zones = {} 
+        self.panels = {}
+        self.base_template = base_template
+
+    def add_root_zone(self,name,zone):
+        self.zones[name] = zone
+
+    def add_panel(self,slug,panel):
+        setattr(self,slug,panel)
+        self.panels[slug] = panel
  
-    def index(self,*args):
-        cherrypy.response.headers["Content-Type"] = "application/json"
-        return json.dumps(args)
-    index.exposed = True
+    def GET(self,*args):
+        return open(self.base_template).read()
 
     def run(self):
-        # Boot Cherrypy server
-        cherrypy.quickstart(self)
+        cherrypy.quickstart(self, config={'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}})
+
+def dynamic_import(path):
+    module,klass = path.rsplit('.',1)
+    Modu = importlib.import_module(module,klass)
+    Klass = getattr(Modu,klass)
+    return Klass
+
+def panel_list_builder(o):
+    panels = {}
+    for p in o:
+        P = dynamic_import(p["type"])
+        panel = P(p["name"],p["config"])
+        panels[p["slug"]] = panel
+    return panels
 
 def zone_tree_builder(o):
     zones = {} 
@@ -41,6 +61,7 @@ def main():
     from optparse import OptionParser
     p = OptionParser()
     p.add_option("-c","--config",dest="cfgfile",help="Config File to load",default="my_home.yaml")
+    p.add_option("-p","--uiconfig",dest="uifile",help="UI Config File to load",default="my_ui.yaml")
 
     (options,args) = p.parse_args()
 
@@ -49,10 +70,18 @@ def main():
     except ValueError as e:
         print "Please provide a yaml configuration: ",e.message
 
+    try:
+        uicfg = yaml.load(open(options.uifile).read())
+    except ValueError as e:
+        print "Please provide a yaml UI configuration: ",e.message
+
     zones = zone_tree_builder(cfg)
+    panels = panel_list_builder(uicfg)
     s=Server()    
     for z in zones.keys():
-        s.add_zone(z,zones[z])
+        s.add_root_zone(z,zones[z])
+    for p in panels.keys():
+        s.add_panel(p,panels[p])
     s.run()  
 
 if __name__=="__main__":
