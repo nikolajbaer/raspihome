@@ -1,13 +1,9 @@
 from base import Panel
 
-class TestSensorPanel(Panel):
-    def get_data(self):
-        return {"Test":"OK"}
+class ReadSensorPanel(Panel):
+    verbose_name = "Read Sensor"
+    verbose_desc = "Reads the current value from a sensor when called"
 
-    def action_test(self,**kwargs):
-        return {"Test":"OK","kwargs":kwargs}
-
-class ReadSensor(Panel):
     def _get_sensor(self):
         return self.get_item_from_facility(self.cfg.get("sensor",None))
  

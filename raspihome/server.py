@@ -40,20 +40,19 @@ def panel_list_builder(o,f):
 def zone_tree_builder(o):
     zones = {} 
     for z in o:
-        if z.has_key("features"):
-            # TODO if has features, generate a new mixin class on the fly </guitar solo>
-            pass
         zone = Zone(z["id"],z.get("name",None))
-        if z.has_key("path"):
-            path = z["path"].split("/")
+        if z.has_key("parent"):
+            path = z["parent"].split("/")
             zones[path[0]].insert_subzone(zone,path[1:])
         else:
             zones[z["id"]] = zone
-        # TODO add sensors
-        # TODO add actuators
+        devices = z.get("devices",[])
+        for d in devices:
+            pass 
     return zones
 
-def bootstrap(cfgfile,uifile,run_server=False):
+# TODO move to own file?
+def bootstrap(cfgfile,uifile,facility_id,facility_name,run_server=False):
     '''Build Facility from configfiles and init server
     Pass run_server=True to run the http server
     returns tuple of (Facility,Panels,Server)
@@ -71,7 +70,7 @@ def bootstrap(cfgfile,uifile,run_server=False):
         return
 
     zones = zone_tree_builder(cfg)
-    f=Facility("my_facility","My Facility")
+    f=Facility(facility_id,facility_name)
     panels = panel_list_builder(uicfg,f)
     s=Server()    
     for z in zones.keys():
@@ -90,7 +89,7 @@ def main():
     p.add_option("-p","--uiconfig",dest="uifile",help="UI Config File to load",default="my_ui.yaml")
 
     (options,args) = p.parse_args()
-    bootstrap(options.cfgfile,options.uifile,run_server=True)
+    bootstrap(options.cfgfile,options.uifile,"home","My Home",run_server=True)
 
 if __name__=="__main__":
     main()

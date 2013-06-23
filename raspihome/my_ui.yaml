@@ -1,6 +1,6 @@
 - slug: test
   name: Test Panel
-  type: ui.sensors.TestSensorPanel
+  type: ui.sensors.ReadSensorPanel
   config:
     sensor: rhome://my_home/home/livingroom/#sens1
     test_attribute: Hello

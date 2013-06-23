@@ -1,25 +1,26 @@
 import urlparse
+ZONE_SCHEME = "rhome"
 
 class NoSuchSubzone(Exception): pass
 class ZoneURINotFound(Exception): pass
 
 class Facility(object):
     def __init__(self,id,name=None):
-        self.zones = {} 
+        self.subzones = {} 
         self.name = name
         self.id = id
 
-    def add_root_zone(self,name,zone):
-        self.zones[name] = zone
+    def add_root_zone(self,zone):
+        self.subzones[zone.id] = zone
 
-
-    def get(self,path,device=None):
+    def get_by_path(self,path,device=None):
         '''Gets by list of path slugs.'''
-        if not self.zones.has_key(path[0]):
+        print "facility getting ",path,device
+        if not self.subzones.has_key(path[0]):
             return None
-        return self.zones[path[0]].get(path[1:],device)
+        return self.subzones[path[0]].get(path[1:],device)
 
-    def get_by_uri(self,uri):
+    def get(self,uri):
         '''Parses Full or relative Zone URI to find appropriate Zone
         e.g. rhome://myhome/mylivingroom/#mantel_light 
         '''
@@ -33,9 +34,19 @@ class Facility(object):
             # Raise an exception, as routing to facility should already be done by now
             raise ZoneURINotFound("Wrong Facility: you asked for %s, this is %s"%\
                                   (facility,self.id))
+        path = [p for p in components[0].split('/') if len(p)]
+        device = len(components) > 1 and components[1] or None
+        return self.get_by_path(path,device)
 
-        return self.get(components[0].split('/'),\
-                        len(components) > 1 and components[1] or None)
+    def _print_zonetree(self):
+        def f(zone,d):
+            for sz in zone.subzones:
+                print "%s%s:"%(d*"\t",sz) 
+                print "%s(%s)"%((d+1)*"\t",",".join(zone.subzones[sz].devices.keys()))
+                f(zone.subzones[sz],d+1)
+
+        print "="*80,"\nFacility ",self.name," (%s)"%self.id
+        f(self,1)     
 
 class Zone(object):
     def __init__(self,id,name=None):
@@ -49,9 +60,10 @@ class Zone(object):
         Recursively walk down zone tree to find matching path. 
         Returns None if not found
         '''
+        print self.id,"getting",path,device
         if len(path) > 0:
             if self.subzones.has_key(path[0]):
-                return self.subzones[path[0]].get(path[1:])
+                return self.subzones[path[0]].get(path[1:],device)
             else:
                 return None
         # Otherwise, return device or zone
@@ -59,7 +71,7 @@ class Zone(object):
             return self.devices.get(device,None)
         return self 
 
-    def insert_subzone(self,z,path=[]):
+    def insert_subzone(self,z,path=None):
         if not path:
             self.subzones[z.id] = z
             return

@@ -1,7 +1,4 @@
-- id: home
-  name: Home 
 - id: livingroom
-  path: home
   devices:
      - type: home.test.TestSensor
        name: sens1
@@ -12,15 +9,9 @@
        config:
           testval: b
 - id: master-bedroom
-  path: home
 - id: kids-bedroom
-  path: home
 - id: master-bath
-  path: home/master-bedroom 
+  parent: master-bedroom 
 - id: office
-  path: home    
 - id: garage
-  path: home
-        
-
                 
