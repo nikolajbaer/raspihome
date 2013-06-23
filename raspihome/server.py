@@ -1,5 +1,5 @@
 import yaml,sys
-from home.base import Zone
+from home.base import Zone,Facility
 import cherrypy
 from cherrypy.lib.static import serve_file
 import json
@@ -10,12 +10,8 @@ class Server(object):
 
     def __init__(self,base_template="public/index.html"):
         self.facility = None
-        self.zones = {} 
         self.panels = {}
         self.base_template = base_template
-
-    def add_root_zone(self,name,zone):
-        self.zones[name] = zone
 
     def add_panel(self,slug,panel):
         setattr(self,slug,panel)
@@ -33,11 +29,11 @@ def dynamic_import(path):
     Klass = getattr(Modu,klass)
     return Klass
 
-def panel_list_builder(o):
+def panel_list_builder(o,f):
     panels = {}
     for p in o:
         P = dynamic_import(p["type"])
-        panel = P(p["name"],p["config"])
+        panel = P(p["name"],p["config"],f)
         panels[p["slug"]] = panel
     return panels
 
@@ -57,6 +53,36 @@ def zone_tree_builder(o):
         # TODO add actuators
     return zones
 
+def bootstrap(cfgfile,uifile,run_server=False):
+    '''Build Facility from configfiles and init server
+    Pass run_server=True to run the http server
+    returns tuple of (Facility,Panels,Server)
+    '''
+    try:
+        cfg = yaml.load(open(cfgfile).read())
+    except ValueError as e:
+        print "Please provide a yaml configuration: ",e.message
+        return
+
+    try:
+        uicfg = yaml.load(open(uifile).read())
+    except ValueError as e:
+        print "Please provide a yaml UI configuration: ",e.message
+        return
+
+    zones = zone_tree_builder(cfg)
+    f=Facility("my_facility","My Facility")
+    panels = panel_list_builder(uicfg,f)
+    s=Server()    
+    for z in zones.keys():
+        f.add_root_zone(z,zones[z])
+    for p in panels.keys():
+        s.add_panel(p,panels[p])
+    if run_server:
+        s.run()  
+
+    return f,panels,s
+
 def main():
     from optparse import OptionParser
     p = OptionParser()
@@ -64,25 +90,7 @@ def main():
     p.add_option("-p","--uiconfig",dest="uifile",help="UI Config File to load",default="my_ui.yaml")
 
     (options,args) = p.parse_args()
-
-    try:
-        cfg = yaml.load(open(options.cfgfile).read())
-    except ValueError as e:
-        print "Please provide a yaml configuration: ",e.message
-
-    try:
-        uicfg = yaml.load(open(options.uifile).read())
-    except ValueError as e:
-        print "Please provide a yaml UI configuration: ",e.message
-
-    zones = zone_tree_builder(cfg)
-    panels = panel_list_builder(uicfg)
-    s=Server()    
-    for z in zones.keys():
-        s.add_root_zone(z,zones[z])
-    for p in panels.keys():
-        s.add_panel(p,panels[p])
-    s.run()  
+    bootstrap(options.cfgfile,options.uifile,run_server=True)
 
 if __name__=="__main__":
     main()

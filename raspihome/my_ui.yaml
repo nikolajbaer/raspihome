@@ -2,6 +2,7 @@
   name: Test Panel
   type: ui.sensors.TestSensorPanel
   config:
+    sensor: rhome://my_home/home/livingroom/#sens1
     test_attribute: Hello
     test_another: World
   template: some_template.html  

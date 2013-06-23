@@ -4,9 +4,13 @@ VALID_ACTION = re.compile("[a-zA-Z0-9_]{4,32}")
 
 class Panel(object):
     exposed = True
-    def __init__(self,name,cfg):
+    def __init__(self,name,cfg,facility):
+        self.facility = facility
         self.name = name
         self.cfg = cfg
+
+    def get_item_from_facility(self,uri):
+        return self.facility.get(uri) 
     
     def POST(self,action,**kwargs):
         # Actions should be alphanumeric with underscores from 4 - 32 characters long 
