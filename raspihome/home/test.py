@@ -23,5 +23,5 @@ class TestSensor(Sensor):
     def do_update(self):
         self.state += 1
         self.last_update = datetime.datetime.now()
-
+        return True
 

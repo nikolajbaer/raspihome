@@ -15,7 +15,6 @@ class Facility(object):
 
     def get_by_path(self,path,device=None):
         '''Gets by list of path slugs.'''
-        print "facility getting ",path,device
         if not self.subzones.has_key(path[0]):
             return None
         return self.subzones[path[0]].get(path[1:],device)
@@ -29,11 +28,16 @@ class Facility(object):
             raise ValueError("Invalid Zone URI Scheme, expecting %s"%ZONE_SCHEME) 
 
         # TODO why does urlparse not do fragments without http?
-        components = uri.path.split('#') 
+        if uri.netloc:
+            components = uri.path.split('#') 
+        else:
+            components = uri.path,uri.fragment
+
         if uri.netloc and uri.netloc != self.id:
             # Raise an exception, as routing to facility should already be done by now
             raise ZoneURINotFound("Wrong Facility: you asked for %s, this is %s"%\
-                                  (facility,self.id))
+                                  (uri.netloc,self.id))
+
         path = [p for p in components[0].split('/') if len(p)]
         device = len(components) > 1 and components[1] or None
         return self.get_by_path(path,device)
@@ -55,12 +59,14 @@ class Zone(object):
         self.subzones = {}
         self.devices = {}
 
+    def add_device(self,id,device):
+        self.devices[id] = device
+
     def get(self,path,device):
         '''
         Recursively walk down zone tree to find matching path. 
         Returns None if not found
         '''
-        print self.id,"getting",path,device
         if len(path) > 0:
             if self.subzones.has_key(path[0]):
                 return self.subzones[path[0]].get(path[1:],device)
@@ -99,12 +105,13 @@ class Device(object):
         return {} 
 
 class Sensor(Device):
-    '''Read-only device'''
+    '''Read-only device, just implement get_data!'''
     def available_actions(self):
         return {"update":{}} 
 
     def do_update(self):
-        raise ToBeImplementedException("Sensors should run update here")
+        '''Optional periodic update function'''
+        pass
 
     def do(self,action,**kwargs):
         ''' Run no-op on all actions '''

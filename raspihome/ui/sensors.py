@@ -11,3 +11,18 @@ class ReadSensorPanel(Panel):
         s = self._get_sensor()
         return s and s.read() or {} #CONSIDER return error object?
 
+class UpdateActionPanel(Panel):
+    verbose_name = "Run Action"
+
+    def _get_device(self):
+        return self.get_item_from_facility(self.cfg.get("device"))
+
+    def get_data(self):
+        return self._get_device().available_actions()
+
+    def do_update(self):
+        device = self._get_device()
+        if "update" in device.available_actions():
+            return device.do("update")
+        return False
+

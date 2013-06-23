@@ -14,4 +14,7 @@
   parent: master-bedroom 
 - id: office
 - id: garage
-                
+  devices:
+     - type: contrib.server_sensors.RaspihomeServer
+       name: server
+

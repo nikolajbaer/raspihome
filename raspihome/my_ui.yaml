@@ -2,8 +2,13 @@
   name: Test Panel
   type: ui.sensors.ReadSensorPanel
   config:
-    sensor: rhome://my_home/home/livingroom/#sens1
+    sensor: rhome://home/livingroom/#sens1
     test_attribute: Hello
     test_another: World
   template: some_template.html  
-
+- slug: server
+  name: Server Stats
+  type: ui.sensors.ReadSensorPanel
+  config:
+    sensor: rhome://home/garage/#server
+    
