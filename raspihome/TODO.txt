@@ -1,0 +1,9 @@
+Items To Do
+============
+
+1. Refactor server into rhome base and server
+2. Create v1 template
+3. Add trigger actions
+4. Add persistence layer
+
+
