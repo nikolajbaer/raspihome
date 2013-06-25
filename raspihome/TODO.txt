@@ -1,9 +1,10 @@
 Items To Do
 ============
 
-1. Refactor server into rhome base and server
-2. Create v1 template
+1. Create v1 template
+2. Refactor server into rhome base and server
 3. Add trigger actions
 4. Add persistence layer
+5. Create pluggability structure 
 
 
